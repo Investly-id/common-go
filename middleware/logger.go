@@ -10,6 +10,7 @@ import (
 type response struct {
 	Message string `json:"message"`
 	Error   string `json:"error"`
+	Status  bool   `json:"status"`
 }
 
 type Logger struct {
@@ -68,7 +69,7 @@ func (l *Logger) ErrorHandler(err error, c echo.Context) {
 
 	resp := &response{
 		Message: report.Message.(string),
-		Error:   report.Error(),
+		Error:   report.Message.(string),
 	}
 
 	l.makeLogEntry(c).Error(report.Message)
