@@ -12,19 +12,19 @@ type response struct {
 	Error   string `json:"error"`
 }
 
-type logger struct {
+type Logger struct {
 	LogPath *string
 	Level   log.Level
 }
 
-func NewLogger(LogPath string, level log.Level) *logger {
-	return &logger{
+func NewLogger(LogPath string, level log.Level) *Logger {
+	return &Logger{
 		LogPath: &LogPath,
 		Level:   level,
 	}
 }
 
-func (l *logger) makeLogEntry(c echo.Context) *log.Entry {
+func (l *Logger) makeLogEntry(c echo.Context) *log.Entry {
 
 	log.SetFormatter(&log.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
@@ -55,14 +55,14 @@ func (l *logger) makeLogEntry(c echo.Context) *log.Entry {
 	})
 }
 
-func (l *logger) MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
+func (l *Logger) MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		l.makeLogEntry(c).Info("Incoming request")
 		return next(c)
 	}
 }
 
-func (l *logger) ErrorHandler(err error, c echo.Context) {
+func (l *Logger) ErrorHandler(err error, c echo.Context) {
 
 	report := err.(*echo.HTTPError)
 
