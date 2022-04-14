@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path"
 	"reflect"
 	"strings"
 
@@ -50,6 +51,39 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 			return echo.NewHTTPError(http.StatusBadRequest, errorRes)
 		}
 	}
+	return nil
+}
+
+const (
+	MB             = 1 << 20
+	MAX_IMAGE_SIZE = 3 * MB
+)
+
+func FileValidation(c echo.Context, fieldName string, isRequired bool, fileType string) error {
+	form, _ := c.MultipartForm()
+
+	files := form.File[fieldName]
+	if files == nil && isRequired {
+		return errors.New(fmt.Sprintf("Kolom %s wajib diisi", fieldName))
+	}
+
+	if files != nil {
+		for _, i := range files {
+
+			ext := strings.ToLower(path.Ext(i.Filename))
+
+			if fileType == "image" {
+				if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+					return errors.New("Hanya boleh gambar dengan format (.jpg, .jpeg, .png)")
+				}
+			}
+
+			if i.Size > MAX_IMAGE_SIZE {
+				return errors.New(fmt.Sprintf("Maksimal ukuran gambar = %d", MAX_IMAGE_SIZE))
+			}
+		}
+	}
+
 	return nil
 }
 

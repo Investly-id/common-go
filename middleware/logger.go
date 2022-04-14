@@ -3,15 +3,10 @@ package middleware
 import (
 	"os"
 
+	"github.com/Investly-id/common-go/v2/payload"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
-
-type response struct {
-	Message string `json:"message"`
-	Error   string `json:"error"`
-	Status  bool   `json:"status"`
-}
 
 type Logger struct {
 	LogPath *string
@@ -67,7 +62,7 @@ func (l *Logger) ErrorHandler(err error, c echo.Context) {
 
 	report := err.(*echo.HTTPError)
 
-	resp := &response{
+	resp := &payload.Response{
 		Message: report.Message.(string),
 		Error:   report.Message.(string),
 	}

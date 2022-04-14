@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/Investly-id/common-go/v2/payload"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +21,7 @@ func (icm *InternalConnectionMiddleware) ValidateInternalAccess(next echo.Handle
 	return func(c echo.Context) error {
 		internalToken := c.Request().Header.Get("x-internal-token")
 		if internalToken != icm.secret {
-			res := &response{
+			res := &payload.Response{
 				Message: "Unauthorized",
 				Status:  false,
 			}
