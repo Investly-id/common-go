@@ -17,9 +17,9 @@ type Logger struct {
 	Level   log.Level
 }
 
-func NewLogger(LogPath string, level log.Level) *Logger {
+func NewLogger(LogPath *string, level log.Level) *Logger {
 	return &Logger{
-		LogPath: &LogPath,
+		LogPath: LogPath,
 		Level:   level,
 	}
 }
