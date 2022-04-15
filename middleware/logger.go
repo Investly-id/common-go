@@ -20,7 +20,7 @@ func NewLogger(LogPath *string, level log.Level) *Logger {
 	}
 }
 
-func (l *Logger) makeLogEntry(c echo.Context) *log.Entry {
+func (l *Logger) LogEntry(c echo.Context) *log.Entry {
 
 	log.SetFormatter(&log.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
@@ -28,6 +28,8 @@ func (l *Logger) makeLogEntry(c echo.Context) *log.Entry {
 		FullTimestamp:   true,
 		ForceQuote:      true,
 	})
+
+	log.SetLevel(l.Level)
 
 	if l.LogPath != nil {
 		f, err := os.OpenFile(*l.LogPath, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
@@ -51,14 +53,14 @@ func (l *Logger) makeLogEntry(c echo.Context) *log.Entry {
 	})
 }
 
-func (l *Logger) MiddlewareLogger(next echo.HandlerFunc) echo.HandlerFunc {
+func (l *Logger) LogMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		l.makeLogEntry(c).Info("Incoming request")
+		l.LogEntry(c).Info("Incoming request")
 		return next(c)
 	}
 }
 
-func (l *Logger) ErrorHandler(err error, c echo.Context) {
+func (l *Logger) LogError(err error, c echo.Context) {
 
 	report := err.(*echo.HTTPError)
 
@@ -67,6 +69,6 @@ func (l *Logger) ErrorHandler(err error, c echo.Context) {
 		Error:   report.Message.(string),
 	}
 
-	l.makeLogEntry(c).Error(report.Message)
+	l.LogEntry(c).Error(report.Message)
 	c.JSON(report.Code, &resp)
 }

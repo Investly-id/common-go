@@ -28,12 +28,14 @@ type GCSConfig struct {
 
 func NewGoogleCloudStorage(cfg *GCSConfig) *GCS {
 
+	// get projecct path
 	gcsCredentials, _ := os.Getwd()
 	gcsCredentials = fmt.Sprintf("%s/%s", gcsCredentials, cfg.CredentialPath)
 
 	// set google applicaton credentials
 	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", gcsCredentials)
 
+	// init GCS client
 	client, err := storage.NewClient(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
@@ -69,6 +71,8 @@ func (g *GCS) UploadFile(file multipart.File, fileName string) error {
 }
 
 func (g *GCS) Close() {
+
+	// close GCS client
 	if g.client != nil {
 		g.Close()
 	}

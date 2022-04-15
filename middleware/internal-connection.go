@@ -19,7 +19,11 @@ func NewInternalConnection(secret string) *InternalConnection {
 
 func (icm *InternalConnection) ValidateInternalAccess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+
+		// get inernal secret from headers
 		internalToken := c.Request().Header.Get("x-internal-token")
+
+		// check if request doesn't have x-internal-token headers
 		if internalToken != icm.secret {
 			res := &payload.Response{
 				Message: "Unauthorized",
