@@ -53,8 +53,8 @@ func (l *Logger) LogEntry(c echo.Context) *log.Entry {
 		"uri":    c.Request().URL.String(),
 		"ip":     c.Request().RemoteAddr,
 		"body":   c.Request().Body,
-		"header": c.Request().Header
-		"form"	: c.Request().Form
+		"header": c.Request().Header,
+		"form":   c.Request().Form,
 	})
 }
 
