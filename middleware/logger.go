@@ -22,6 +22,7 @@ func NewLogger(LogPath *string, level log.Level) *Logger {
 
 func (l *Logger) LogEntry(c echo.Context) *log.Entry {
 
+	// set log formatter
 	log.SetFormatter(&log.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
 		ForceColors:     true,
@@ -29,6 +30,7 @@ func (l *Logger) LogEntry(c echo.Context) *log.Entry {
 		ForceQuote:      true,
 	})
 
+	// set log level
 	log.SetLevel(l.Level)
 
 	if l.LogPath != nil {
@@ -50,6 +52,9 @@ func (l *Logger) LogEntry(c echo.Context) *log.Entry {
 		"method": c.Request().Method,
 		"uri":    c.Request().URL.String(),
 		"ip":     c.Request().RemoteAddr,
+		"body":   c.Request().Body,
+		"header": c.Request().Header
+		"form"	: c.Request().Form
 	})
 }
 
