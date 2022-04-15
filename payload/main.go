@@ -1,9 +1,11 @@
 package payload
 
 type Response struct {
-	Message string `json:"message"`
-	Error   string `json:"error"`
-	Status  bool   `json:"status"`
+	Status  bool        `json:"status"`
+	Message string      `json:"messages"`
+	Meta    *Pagination `json:"meta,omitempty"`
+	Error   interface{} `json:"error,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 type Pagination struct {

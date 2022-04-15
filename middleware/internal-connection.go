@@ -7,17 +7,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type InternalConnectionMiddleware struct {
+type InternalConnection struct {
 	secret string
 }
 
-func NewInternalConnection(secret string) *InternalConnectionMiddleware {
-	return &InternalConnectionMiddleware{
+func NewInternalConnection(secret string) *InternalConnection {
+	return &InternalConnection{
 		secret: secret,
 	}
 }
 
-func (icm *InternalConnectionMiddleware) ValidateInternalAccess(next echo.HandlerFunc) echo.HandlerFunc {
+func (icm *InternalConnection) ValidateInternalAccess(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		internalToken := c.Request().Header.Get("x-internal-token")
 		if internalToken != icm.secret {

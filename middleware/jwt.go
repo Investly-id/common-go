@@ -11,13 +11,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-type JwtMiddleware struct {
+type Jwt struct {
 	AccessTokenExpiredHour int
 	Secret                 string
 }
 
-func NewJwt(expiredHour int, secret string) *JwtMiddleware {
-	return &JwtMiddleware{
+func NewJwt(expiredHour int, secret string) *Jwt {
+	return &Jwt{
 		AccessTokenExpiredHour: expiredHour,
 		Secret:                 secret,
 	}
@@ -27,7 +27,7 @@ type jwtCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func (j *JwtMiddleware) GenerateToken(userId int) (string, error) {
+func (j *Jwt) GenerateToken(userId int) (string, error) {
 	claims := &jwtCustomClaims{
 		jwt.StandardClaims{
 			Subject:   strconv.Itoa(userId),
@@ -46,7 +46,7 @@ func (j *JwtMiddleware) GenerateToken(userId int) (string, error) {
 	return t, nil
 }
 
-func (j *JwtMiddleware) ValidateJWT() echo.MiddlewareFunc {
+func (j *Jwt) ValidateJWT() echo.MiddlewareFunc {
 
 	JWTConfig := middleware.JWTConfig{
 		TokenLookup: "header:" + echo.HeaderAuthorization,
@@ -64,7 +64,7 @@ func (j *JwtMiddleware) ValidateJWT() echo.MiddlewareFunc {
 				return nil, err
 			}
 			if !token.Valid {
-				return nil, errors.New("invalid token")
+				return nil, errors.New("Invalid token")
 			}
 			return token, nil
 		},
@@ -73,12 +73,12 @@ func (j *JwtMiddleware) ValidateJWT() echo.MiddlewareFunc {
 	return middleware.JWTWithConfig(JWTConfig)
 }
 
-func (j *JwtMiddleware) GetJWTClaims(c echo.Context) map[string]interface{} {
+func (j *Jwt) GetJWTClaims(c echo.Context) map[string]interface{} {
 	jwtContext := c.Get("user").(*jwt.Token)
 	return jwtContext.Claims.(jwt.MapClaims)
 }
 
-func (j *JwtMiddleware) GetUserIdFromJwt(c echo.Context) int {
+func (j *Jwt) GetUserIdFromJwt(c echo.Context) int {
 	userId, _ := strconv.Atoi(j.GetJWTClaims(c)["sub"].(string))
 	return userId
 }

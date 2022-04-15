@@ -2,12 +2,19 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
-func StringToTime(str string) *time.Time {
+func StringToTime(str string, isDate bool) *time.Time {
 	layout := "2006-01-02"
-	t, _ := time.Parse(layout, str)
+	if !isDate {
+		layout = "2006-01-02 15:04:05"
+	}
+	t, err := time.Parse(layout, str)
+	if err != nil {
+		log.Println(err)
+	}
 	return &t
 }
 
