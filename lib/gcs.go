@@ -74,6 +74,6 @@ func (g *GCS) Close() {
 
 	// close GCS client
 	if g.client != nil {
-		g.Close()
+		g.client.Close()
 	}
 }
