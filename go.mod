@@ -1,4 +1,4 @@
-module github.com/Investly-id/common-go/v2
+module github.com/Investly-id/common-go/v3
 
 go 1.18
 

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Investly-id/common-go/v2/utils"
+	"github.com/Investly-id/common-go/v3/utils"
 	"github.com/stretchr/testify/assert"
 )
 

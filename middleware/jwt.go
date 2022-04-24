@@ -3,7 +3,6 @@ package middleware
 import (
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -27,10 +26,10 @@ type jwtCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func (j *Jwt) GenerateToken(userId int) (string, error) {
+func (j *Jwt) GenerateToken(userId []byte) (string, error) {
 	claims := &jwtCustomClaims{
 		jwt.StandardClaims{
-			Subject:   strconv.Itoa(userId),
+			Subject:   string(userId),
 			ExpiresAt: time.Now().Add(time.Hour * time.Duration(j.AccessTokenExpiredHour)).Unix(),
 		},
 	}
@@ -78,7 +77,7 @@ func (j *Jwt) GetJWTClaims(c echo.Context) map[string]interface{} {
 	return jwtContext.Claims.(jwt.MapClaims)
 }
 
-func (j *Jwt) GetUserIdFromJwt(c echo.Context) int {
-	userId, _ := strconv.Atoi(j.GetJWTClaims(c)["sub"].(string))
+func (j *Jwt) GetUserIdFromJwt(c echo.Context) string {
+	userId := j.GetJWTClaims(c)["sub"].(string)
 	return userId
 }

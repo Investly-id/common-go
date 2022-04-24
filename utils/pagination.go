@@ -3,7 +3,7 @@ package utils
 import (
 	"strconv"
 
-	"github.com/Investly-id/common-go/v2/payload"
+	"github.com/Investly-id/common-go/v3/payload"
 	"github.com/labstack/echo/v4"
 )
 

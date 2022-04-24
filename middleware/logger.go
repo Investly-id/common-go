@@ -3,7 +3,7 @@ package middleware
 import (
 	"os"
 
-	"github.com/Investly-id/common-go/v2/payload"
+	"github.com/Investly-id/common-go/v3/payload"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
