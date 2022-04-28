@@ -9,8 +9,9 @@ import (
 )
 
 type Logger struct {
-	LogPath *string
-	Level   log.Level
+	LogPath    *string
+	Level      log.Level
+	SentryHook Hook
 }
 
 func NewLogger(LogPath *string, level log.Level) *Logger {
@@ -18,6 +19,10 @@ func NewLogger(LogPath *string, level log.Level) *Logger {
 		LogPath: LogPath,
 		Level:   level,
 	}
+}
+
+func (l *Logger) SetSentryHook(hook Hook) {
+	log.AddHook(hook)
 }
 
 func (l *Logger) LogEntry(c echo.Context) *log.Entry {
