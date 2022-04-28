@@ -1,6 +1,9 @@
 package middleware
 
 import (
+	"log"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	sentryecho "github.com/getsentry/sentry-go/echo"
 	"github.com/labstack/echo/v4"
@@ -28,9 +31,12 @@ func (h *hook) Fire(entry *logrus.Entry) error {
 				hub.CaptureMessage("User provided unwanted query string, but we recovered just fine")
 			})
 		}
-
-		sentry.CaptureMessage("Captue message yes")
 	}
+
+	defer sentry.Flush(2 * time.Second)
+
+	sentryID := sentry.CaptureMessage("Captue message yes")
+	log.Println("sentry ID", sentryID)
 
 	return nil
 }
