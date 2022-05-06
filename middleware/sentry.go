@@ -2,49 +2,17 @@ package middleware
 
 import (
 	"log"
-	"time"
+	"net/http"
 
+	"github.com/Investly-id/common-go/v3/payload"
 	"github.com/getsentry/sentry-go"
 	sentryecho "github.com/getsentry/sentry-go/echo"
 	"github.com/labstack/echo/v4"
-	"github.com/sirupsen/logrus"
 )
 
-type Hook interface {
-	Levels() []logrus.Level
-	Fire(*logrus.Entry) error
-}
-
-type hook struct {
-	ctx echo.Context
-}
-
-func (h *hook) Levels() []logrus.Level {
-	return []logrus.Level{logrus.WarnLevel, logrus.ErrorLevel}
-}
-
-func (h *hook) Fire(entry *logrus.Entry) error {
-	if entry.Level == logrus.ErrorLevel {
-		if hub := sentryecho.GetHubFromContext(h.ctx); hub != nil {
-			hub.WithScope(func(scope *sentry.Scope) {
-				scope.SetExtra("TEST ERROR EXTRA", "TEST ERROR EXTRA")
-				hub.CaptureMessage("User provided unwanted query string, but we recovered just fine")
-			})
-		}
-	}
-
-	defer sentry.Flush(2 * time.Second)
-
-	sentryID := sentry.CaptureMessage("Captue message yes")
-	log.Println("sentry ID", sentryID)
-
-	return nil
-}
-
 type Sentry struct {
-	Dsn         string
-	Mid         echo.MiddlewareFunc
-	LogrusHooks Hook
+	Dsn string
+	Mid echo.MiddlewareFunc
 }
 
 func NewSentry() *Sentry {
@@ -59,6 +27,7 @@ func (s *Sentry) InitSentryConnection(dsn string) error {
 	if err := sentry.Init(sentry.ClientOptions{
 		Dsn: dsn,
 	}); err != nil {
+		log.Fatal(err)
 		return err
 	}
 
@@ -66,8 +35,28 @@ func (s *Sentry) InitSentryConnection(dsn string) error {
 	return nil
 }
 
-func (s *Sentry) AddLogrusHook(ctx echo.Context) {
-	s.LogrusHooks = &hook{
-		ctx: ctx,
+func (s *Sentry) Recover(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		defer func() {
+			// recover from panic
+			if p := recover(); p != nil {
+				// send error message to sentry
+				if hub := sentryecho.GetHubFromContext(c); hub != nil {
+					hub.WithScope(func(scope *sentry.Scope) {
+						switch x := p.(type) {
+						case string:
+							hub.CaptureMessage(x)
+						case error:
+							sentry.CaptureException(x)
+						}
+					})
+				}
+				c.JSON(http.StatusInternalServerError, &payload.Response{
+					Status:  false,
+					Message: "Internal server error",
+				})
+			}
+		}()
+		return next(c)
 	}
 }

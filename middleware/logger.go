@@ -9,9 +9,8 @@ import (
 )
 
 type Logger struct {
-	LogPath    *string
-	Level      log.Level
-	SentryHook Hook
+	LogPath *string
+	Level   log.Level
 }
 
 func NewLogger(LogPath *string, level log.Level) *Logger {
@@ -20,11 +19,6 @@ func NewLogger(LogPath *string, level log.Level) *Logger {
 		Level:   level,
 	}
 }
-
-func (l *Logger) SetSentryHook(hook Hook) {
-	log.AddHook(hook)
-}
-
 func (l *Logger) LogEntry(c echo.Context) *log.Entry {
 
 	// set log formatter
@@ -69,7 +63,7 @@ func (l *Logger) LogMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (l *Logger) LogError(err error, c echo.Context) {
+func (l *Logger) LogError(err error, c echo.Context) error {
 
 	report := err.(*echo.HTTPError)
 
@@ -79,5 +73,5 @@ func (l *Logger) LogError(err error, c echo.Context) {
 	}
 
 	l.LogEntry(c).Error(report.Message)
-	c.JSON(report.Code, &resp)
+	return c.JSON(report.Code, &resp)
 }
