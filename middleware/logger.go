@@ -73,5 +73,5 @@ func (l *Logger) LogError(err error, c echo.Context) {
 	}
 
 	l.LogEntry(c).Error(report.Message)
-	return c.JSON(report.Code, &resp)
+	c.JSON(report.Code, &resp)
 }
