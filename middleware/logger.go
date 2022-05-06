@@ -63,7 +63,7 @@ func (l *Logger) LogMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (l *Logger) LogError(err error, c echo.Context) error {
+func (l *Logger) LogError(err error, c echo.Context) {
 
 	report := err.(*echo.HTTPError)
 
