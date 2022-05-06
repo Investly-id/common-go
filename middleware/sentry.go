@@ -3,6 +3,7 @@ package middleware
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Investly-id/common-go/v3/payload"
 	"github.com/getsentry/sentry-go"
@@ -39,18 +40,9 @@ func (s *Sentry) Recover(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		defer func() {
 			// recover from panic
-			if p := recover(); p != nil {
-				// send error message to sentry
-				if hub := sentryecho.GetHubFromContext(c); hub != nil {
-					hub.WithScope(func(scope *sentry.Scope) {
-						switch x := p.(type) {
-						case string:
-							hub.CaptureMessage(x)
-						case error:
-							sentry.CaptureException(x)
-						}
-					})
-				}
+			if err := recover(); err != nil {
+				sentry.CurrentHub().Recover(err)
+				sentry.Flush(time.Second * 5)
 				c.JSON(http.StatusInternalServerError, &payload.Response{
 					Status:  false,
 					Message: "Internal server error",
