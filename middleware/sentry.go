@@ -18,15 +18,14 @@ type Sentry struct {
 
 func NewSentry() *Sentry {
 	return &Sentry{
-		Mid: sentryecho.New(sentryecho.Options{
-			Repanic: true,
-		}),
+		Mid: sentryecho.New(sentryecho.Options{}),
 	}
 }
 
-func (s *Sentry) InitSentryConnection(dsn string) error {
+func (s *Sentry) InitSentryConnection(dsn string, env string) error {
 	if err := sentry.Init(sentry.ClientOptions{
-		Dsn: dsn,
+		Dsn:         dsn,
+		Environment: env,
 	}); err != nil {
 		log.Fatal(err)
 		return err
