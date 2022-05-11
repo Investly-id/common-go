@@ -39,6 +39,11 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 		if name == "-" {
 			return ""
 		}
+
+		if name == "" {
+			name = strings.SplitN(fld.Tag.Get("form"), ",", 2)[0]
+		}
+
 		return name
 	})
 	if err := cv.Validator.Struct(i); err != nil {
