@@ -41,7 +41,7 @@ func NewGoogleCloudStorage(projectId string, bucketName string, credentialPath s
 }
 
 // file path is location to store file along with file name
-func (g *GCS) UploadFile(file multipart.File, filePath string) error {
+func (g *GCS) UploadFile(file multipart.File, filePath string) (string, error) {
 
 	// create context and failed if the execution pass the limit, the limit is 50 Seconds
 	ctx := context.Background()
@@ -51,15 +51,15 @@ func (g *GCS) UploadFile(file multipart.File, filePath string) error {
 	// Upload an object with storage.Writer.
 	wc := g.client.Bucket(g.bucketName).Object(filePath).NewWriter(ctx)
 	if _, err := io.Copy(wc, file); err != nil {
-		return fmt.Errorf("io.Copy: %v", err)
+		return "", fmt.Errorf("io.Copy: %v", err)
 	}
 
 	// Close the client bucket
 	if err := wc.Close(); err != nil {
-		return fmt.Errorf("Writer.Close: %v", err)
+		return "", fmt.Errorf("Writer.Close: %v", err)
 	}
 
-	return nil
+	return filePath, nil
 }
 
 func (g *GCS) Close() {
