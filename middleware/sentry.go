@@ -13,26 +13,28 @@ import (
 
 type Sentry struct {
 	Dsn string
+	Env string
 	Mid echo.MiddlewareFunc
 }
 
-func NewSentry() *Sentry {
+func NewSentry(dsn string, env string) *Sentry {
+
+	// init sentry when env is production
+	if env == "prod" || env == "production" {
+		if err := sentry.Init(sentry.ClientOptions{
+			Dsn:         dsn,
+			Environment: env,
+		}); err != nil {
+			log.Fatal(err)
+			return nil
+		}
+	}
+
 	return &Sentry{
 		Mid: sentryecho.New(sentryecho.Options{}),
+		Dsn: dsn,
+		Env: env,
 	}
-}
-
-func (s *Sentry) InitSentryConnection(dsn string, env string) error {
-	if err := sentry.Init(sentry.ClientOptions{
-		Dsn:         dsn,
-		Environment: env,
-	}); err != nil {
-		log.Fatal(err)
-		return err
-	}
-
-	s.Dsn = dsn
-	return nil
 }
 
 func (s *Sentry) Recover(next echo.HandlerFunc) echo.HandlerFunc {
@@ -40,8 +42,12 @@ func (s *Sentry) Recover(next echo.HandlerFunc) echo.HandlerFunc {
 		defer func() {
 			// recover from panic
 			if err := recover(); err != nil {
-				sentry.CurrentHub().Recover(err)
-				sentry.Flush(time.Second * 5)
+				// push sentry error message
+				if s.Env == "prod" || s.Env == "production" {
+					sentry.CurrentHub().Recover(err)
+					sentry.Flush(time.Second * 5)
+				}
+
 				c.JSON(http.StatusInternalServerError, &payload.Response{
 					Status:  false,
 					Message: "Internal server error",
