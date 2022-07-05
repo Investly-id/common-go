@@ -62,8 +62,12 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 const (
 	MB             = 1 << 20
 	MAX_IMAGE_SIZE = 3 * MB
+	MAX_PDF_SIZE   = 2 * MB
+	FILE_IMAGE     = "image"
+	FILE_PDF       = "pdf"
 )
 
+// Deprecated: Use FileValidationV2
 func FileValidation(c echo.Context, fieldName string, isRequired bool, fileType string) error {
 	form, _ := c.MultipartForm()
 
@@ -77,7 +81,7 @@ func FileValidation(c echo.Context, fieldName string, isRequired bool, fileType 
 
 			ext := strings.ToLower(path.Ext(i.Filename))
 
-			if fileType == "image" {
+			if fileType == FILE_IMAGE {
 				if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
 					return errors.New("Hanya boleh gambar dengan format (.jpg, .jpeg, .png)")
 				}
@@ -85,6 +89,44 @@ func FileValidation(c echo.Context, fieldName string, isRequired bool, fileType 
 
 			if i.Size > MAX_IMAGE_SIZE {
 				return errors.New(fmt.Sprintf("Maksimal ukuran gambar = %d", MAX_IMAGE_SIZE))
+			}
+		}
+	}
+
+	return nil
+}
+
+func FileValidationV2(c echo.Context, fieldName string, isRequired bool, fileTypes []string) error {
+	form, _ := c.MultipartForm()
+
+	files := form.File[fieldName]
+	if files == nil && isRequired {
+		return errors.New(fmt.Sprintf("Kolom %s wajib diisi", fieldName))
+	}
+
+	if files != nil {
+		for _, i := range files {
+
+			ext := strings.ToLower(path.Ext(i.Filename))
+
+			for _, fileType := range fileTypes {
+				if fileType == FILE_IMAGE {
+					if ext != ".jpg" && ext != ".jpeg" && ext != ".png" {
+						return errors.New("Hanya boleh gambar dengan format (.jpg, .jpeg, .png)")
+					}
+
+					if i.Size > MAX_IMAGE_SIZE {
+						return errors.New(fmt.Sprintf("Maksimal ukuran gambar = %d", MAX_IMAGE_SIZE))
+					}
+				} else if fileType == FILE_PDF {
+					if ext != ".pdf" {
+						return errors.New("Hanya boleh dokumen dengan format .pdf")
+					}
+
+					if i.Size > MAX_PDF_SIZE {
+						return errors.New(fmt.Sprintf("Maksimal ukuran dokumen = %d", MAX_PDF_SIZE))
+					}
+				}
 			}
 		}
 	}
