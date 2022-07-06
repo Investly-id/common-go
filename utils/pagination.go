@@ -25,7 +25,7 @@ func GetPagination(c echo.Context) *payload.PaginationRequest {
 	if page == 1 {
 		offset = 0
 	} else {
-		offset = page*perPage - 1
+		offset = (page - 1) * perPage
 	}
 
 	limit := perPage
