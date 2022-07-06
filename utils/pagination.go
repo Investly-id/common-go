@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math"
 	"strconv"
 
 	"github.com/Investly-id/common-go/v3/payload"
@@ -39,10 +40,8 @@ func GetPagination(c echo.Context) *payload.PaginationRequest {
 
 func CalculateMetaPagination(totalData int64, p *payload.PaginationRequest) *payload.Pagination {
 
-	lastPage := (totalData / p.PerPage)
-	if lastPage == 0 {
-		lastPage = 1
-	}
+	tmp := float64(totalData) / float64(p.PerPage)
+	lastPage := int64(math.Ceil(tmp))
 
 	isLoadMore := p.Page != lastPage
 
