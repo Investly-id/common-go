@@ -20,7 +20,7 @@ type Sentry struct {
 func NewSentry(dsn string, env string) *Sentry {
 
 	// init sentry when env is production
-	if env == "prod" || env == "production" {
+	if env != "dev" && env != "development" {
 		if err := sentry.Init(sentry.ClientOptions{
 			Dsn:         dsn,
 			Environment: env,
@@ -43,7 +43,7 @@ func (s *Sentry) Recover(next echo.HandlerFunc) echo.HandlerFunc {
 			// recover from panic
 			if err := recover(); err != nil {
 				// push sentry error message
-				if s.Env == "prod" || s.Env == "production" {
+				if s.Env != "dev" && s.Env != "development" {
 					sentry.CurrentHub().Recover(err)
 					sentry.Flush(time.Second * 5)
 				}
