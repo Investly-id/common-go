@@ -62,7 +62,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 const (
 	MB             = 1 << 20
 	MAX_IMAGE_SIZE = 3 * MB
-	MAX_PDF_SIZE   = 2 * MB
+	MAX_PDF_SIZE   = 10 * MB
 	FILE_IMAGE     = "image"
 	FILE_PDF       = "pdf"
 )
@@ -138,7 +138,7 @@ func FileValidationV2(c echo.Context, fieldName string, isRequired bool, fileTyp
 			for _, fileTypeImage := range imageType {
 				if ext == fileTypeImage {
 					if i.Size > MAX_IMAGE_SIZE {
-						return errors.New(fmt.Sprintf("Maksimal ukuran gambar = %d", MAX_IMAGE_SIZE))
+						return errors.New(fmt.Sprintf("Maksimal ukuran gambar = %d MB", MAX_IMAGE_SIZE/MB))
 					}
 				}
 			}
@@ -147,7 +147,7 @@ func FileValidationV2(c echo.Context, fieldName string, isRequired bool, fileTyp
 			for _, fileTypePdf := range pdfType {
 				if ext == fileTypePdf {
 					if i.Size > MAX_PDF_SIZE {
-						return errors.New(fmt.Sprintf("Maksimal ukuran dokumen = %d", MAX_PDF_SIZE))
+						return errors.New(fmt.Sprintf("Maksimal ukuran dokumen = %d MB", MAX_PDF_SIZE/MB))
 					}
 				}
 			}
