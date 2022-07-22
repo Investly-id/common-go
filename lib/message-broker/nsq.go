@@ -6,8 +6,11 @@ import (
 	nsqGo "github.com/nsqio/go-nsq"
 )
 
-type nsq struct {
-	producer     *nsqGo.Producer
+type nsqWriter struct {
+	producer *nsqGo.Producer
+}
+
+type nsqReader struct {
 	consumerList []*nsqGo.Consumer
 }
 
@@ -28,7 +31,7 @@ func (c *consumerHandler) HandleMessage(m *nsqGo.Message) error {
 	return nil
 }
 
-func newNsq(fnOpt ...FnOpt) (*nsq, error) {
+func newNsqWriter(fnOpt ...FnOpt) (*nsqWriter, error) {
 
 	options := new(Options)
 	for _, o := range fnOpt {
@@ -41,6 +44,36 @@ func newNsq(fnOpt ...FnOpt) (*nsq, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	return &nsqWriter{
+		producer: producer,
+	}, nil
+}
+
+func (n *nsqWriter) Publish(topic string, message string) error {
+	err := n.producer.Publish(topic, []byte(message))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (n *nsqWriter) Close() error {
+	if n.producer != nil {
+		n.producer.Stop()
+	}
+
+	return nil
+}
+
+func newNsqReader(fnOpt ...FnOpt) (*nsqReader, error) {
+
+	options := new(Options)
+	for _, o := range fnOpt {
+		o(options)
+	}
+
+	config := nsqGo.NewConfig()
 
 	consumerList := make([]*nsqGo.Consumer, 0)
 	for _, optConsumer := range options.ConsumerList {
@@ -61,24 +94,12 @@ func newNsq(fnOpt ...FnOpt) (*nsq, error) {
 		consumerList = append(consumerList, consumer)
 	}
 
-	return &nsq{
-		producer:     producer,
+	return &nsqReader{
 		consumerList: consumerList,
 	}, nil
 }
 
-func (n *nsq) Publish(topic string, message string) error {
-	err := n.producer.Publish(topic, []byte(message))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (n *nsq) Close() error {
-	if n.producer != nil {
-		n.producer.Stop()
-	}
+func (n *nsqReader) Close() error {
 
 	for _, consumer := range n.consumerList {
 		consumer.Stop()

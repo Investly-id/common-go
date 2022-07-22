@@ -1,7 +1,11 @@
 package message_broker
 
-type MessageBroker interface {
+type Writer interface {
 	Publish(topic string, message string) error
+	Close() error
+}
+
+type Reader interface {
 	Close() error
 }
 
@@ -21,10 +25,23 @@ const (
 	DriverKafka = "kafka"
 )
 
-func New(driverName string, opt ...FnOpt) (MessageBroker, error) {
+func NewWriter(driverName string, opt ...FnOpt) (Writer, error) {
 	switch driverName {
 	case DriverNSQ:
-		client, err := newNsq(opt...)
+		client, err := newNsqWriter(opt...)
+		if err != nil {
+			return nil, err
+		}
+		return client, nil
+	}
+
+	return nil, nil
+}
+
+func NewReader(driverName string, opt ...FnOpt) (Reader, error) {
+	switch driverName {
+	case DriverNSQ:
+		client, err := newNsqReader(opt...)
 		if err != nil {
 			return nil, err
 		}
