@@ -62,7 +62,7 @@ func (cv *CustomValidator) Validate(i interface{}) error {
 const (
 	MB             = 1 << 20
 	MAX_IMAGE_SIZE = 3 * MB
-	MAX_PDF_SIZE   = 10 * MB
+	MAX_PDF_SIZE   = 20 * MB
 	FILE_IMAGE     = "image"
 	FILE_PDF       = "pdf"
 )
